@@ -1,6 +1,13 @@
 description: BSP Display example
 
 dependencies:
-  esp_wrover_kit:
-    version: "*"
-    override_path: "../../../bsp/esp_wrover_kit"
+  espressif/m5stack_core_2:
+    version: "^1.0.0"
+    override_path: "../../../bsp/m5stack_core_2"
+
+# description: BSP Display example
+
+# dependencies:
+#   espressif/m5stack_core_s3:
+#     version: "^1.1.1"
+#     override_path: "../../../bsp/m5stack_core_s3"
