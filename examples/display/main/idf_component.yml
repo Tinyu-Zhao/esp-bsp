@@ -6,8 +6,10 @@ dependencies:
     override_path: "../../../bsp/m5stack_core_2"
 
 # description: BSP Display example
-
 # dependencies:
+#   # esp32_s3_lcd_ev_board:
+#   #   version: "*"
+#   #   override_path: "../../../bsp/esp32_s3_lcd_ev_board"
 #   espressif/m5stack_core_s3:
 #     version: "^1.1.1"
 #     override_path: "../../../bsp/m5stack_core_s3"

@@ -29,7 +29,6 @@
 static const char *TAG = "M5Stack";
 
 #define BSP_AXP2101_ADDR 0x34
-// #define BSP_AW9523_ADDR     0x58
 
 /* Features */
 typedef enum {
@@ -37,7 +36,6 @@ typedef enum {
     BSP_FEATURE_TOUCH,
     BSP_FEATURE_SD,
     BSP_FEATURE_SPEAKER,
-    BSP_FEATURE_CAMERA,
 } bsp_feature_t;
 
 #if (BSP_CONFIG_NO_GRAPHIC_LIB == 0)
@@ -77,8 +75,6 @@ esp_err_t bsp_i2c_deinit(void) {
 
 static esp_err_t bsp_enable_feature(bsp_feature_t feature) {
     esp_err_t err = ESP_OK;
-    // static uint8_t aw9523_P0 = 0b10;
-    // static uint8_t aw9523_P1 = 0b10100000;
     uint8_t data[2];
 
     /* Initilize I2C */
@@ -86,58 +82,22 @@ static esp_err_t bsp_enable_feature(bsp_feature_t feature) {
 
     switch (feature) {
         case BSP_FEATURE_LCD:
-            //     /* Enable LCD */
-            //     aw9523_P1 |= (1 << 1);
-            break;
         case BSP_FEATURE_TOUCH:
-            //     /* Enable Touch */
-            //     aw9523_P0 |= (1);
-            break;
         case BSP_FEATURE_SD:
-            /* AXP ALDO4 voltage / SD Card / 3V3 */
+            /* AXP ALDO4 voltage / SD Card / Touch Pad / 3V3 */
             data[0] = 0x95;
             data[1] = 0b00011100;  // 3V3
             err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, data, sizeof(data),
                                               1000 / portTICK_PERIOD_MS);
             break;
         case BSP_FEATURE_SPEAKER:
-            /* AXP ALDO1 voltage / PA PVDD / 1V8 */
-            data[0] = 0x92;
-            data[1] = 0b00001101;  // 1V8
-            err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, data, sizeof(data),
-                                              1000 / portTICK_PERIOD_MS);
-            /* AXP ALDO2 voltage / Codec / 3V3 */
-            data[0] = 0x93;
-            data[1] = 0b00011100;  // 3V3
-            err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, data, sizeof(data),
-                                              1000 / portTICK_PERIOD_MS);
             /* AXP ALDO3 voltage / Codec+Mic / 3V3 */
             data[0] = 0x94;
             data[1] = 0b00011100;  // 3V3
             err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, data, sizeof(data),
                                               1000 / portTICK_PERIOD_MS);
-            // /* AW9523 P0 is in push-pull mode */
-            // data[0] = 0x11;
-            // data[1] = 0x10;
-            // err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AW9523_ADDR, data, sizeof(data), 1000 /
-            // portTICK_PERIOD_MS);
-            // /* Enable Codec AW88298 */
-            // aw9523_P0 |= (1 << 2);
-            break;
-        case BSP_FEATURE_CAMERA:
-            //     /* Enable Camera */
-            //     aw9523_P1 |= (1);
             break;
     }
-
-    // data[0] = 0x02;
-    // data[1] = aw9523_P0;
-    // err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AW9523_ADDR, data, sizeof(data), 1000 / portTICK_PERIOD_MS);
-
-    // data[0] = 0x03;
-    // data[1] = aw9523_P1;
-    // err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AW9523_ADDR, data, sizeof(data), 1000 / portTICK_PERIOD_MS);
-
     return err;
 }
 
@@ -298,7 +258,7 @@ esp_err_t bsp_display_brightness_init(void) {
     /* Initilize I2C */
     BSP_ERROR_CHECK_RETURN_ERR(bsp_i2c_init());
 
-    const uint8_t lcd_bl_en[] = {0x90, 0x3F};  // AXP DLDO1 Enable
+    const uint8_t lcd_bl_en[] = {0x90, 0x3F};  // AXP ALDO1~4 BLDO1~2 Enable
     ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, lcd_bl_en, sizeof(lcd_bl_en),
                                                    1000 / portTICK_PERIOD_MS),
                         TAG, "I2C write failed");
@@ -375,12 +335,11 @@ esp_err_t bsp_display_new(const bsp_display_config_t *config, esp_lcd_panel_hand
     assert(config != NULL && config->max_transfer_sz > 0);
 
     BSP_ERROR_CHECK_RETURN_ERR(bsp_enable_feature(BSP_FEATURE_LCD));
-    BSP_ERROR_CHECK_RETURN_ERR(bsp_enable_feature(BSP_FEATURE_CAMERA));
 
     /* Initialize SPI */
     ESP_RETURN_ON_ERROR(bsp_spi_init(config->max_transfer_sz), TAG, "");
 
-    ESP_LOGD(TAG, "Install panel IO");
+    ESP_LOGI(TAG, "Install panel IO");
     const esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num       = BSP_LCD_DC,
         .cs_gpio_num       = BSP_LCD_CS,
@@ -393,7 +352,7 @@ esp_err_t bsp_display_new(const bsp_display_config_t *config, esp_lcd_panel_hand
     ESP_GOTO_ON_ERROR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)BSP_LCD_SPI_NUM, &io_config, ret_io), err, TAG,
                       "New panel IO failed");
 
-    ESP_LOGD(TAG, "Install LCD driver");
+    ESP_LOGI(TAG, "Install LCD driver");
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BSP_LCD_RST,  // Shared with Touch reset
         .color_space    = BSP_LCD_COLOR_SPACE,
