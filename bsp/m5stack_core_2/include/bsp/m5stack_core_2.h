@@ -54,8 +54,8 @@
 #define BSP_I2S_SCLK          (GPIO_NUM_12) //I2S_BCK
 #define BSP_I2S_MCLK          (GPIO_NUM_0)
 #define BSP_I2S_LCLK          (GPIO_NUM_0) //I2S_WCK
-#define BSP_I2S_DOUT          (GPIO_NUM_34) // MIC
-#define BSP_I2S_DSIN          (GPIO_NUM_2) // From ADC ES7210  //I2S Din DATAIN
+#define BSP_I2S_DOUT          (GPIO_NUM_2)
+#define BSP_I2S_DSIN          (GPIO_NUM_34)
 #define BSP_POWER_AMP_IO      (GPIO_NUM_NC)
 #define BSP_MUTE_STATUS       (GPIO_NUM_NC)
 /* Display */
@@ -91,8 +91,7 @@ extern "C" {
  *  - ADC ES7210 for input (recording) path
  *
  * For speaker initialization use bsp_audio_codec_speaker_init() which is inside initialize I2S with bsp_audio_init().
- * For microphone initialization use bsp_audio_codec_microphone_init() which is inside initialize I2S with bsp_audio_init().
- * After speaker or microphone initialization, use functions from esp_codec_dev for play/record audio.
+ * After speaker initialization, use functions from esp_codec_dev for play/record audio.
  * Example audio play:
  * \code{.c}
  * esp_codec_dev_set_out_vol(spk_codec_dev, DEFAULT_VOLUME);
@@ -175,61 +174,6 @@ esp_err_t bsp_i2c_init(void);
  *
  */
 esp_err_t bsp_i2c_deinit(void);
-
-/**************************************************************************************************
- *
- * Camera interface
- *
- * M5Stack-Core-S3 is shipped with GC0308 camera module.
- * As a camera driver, esp32-camera component is used.
- *
- * Example configuration:
- * \code{.c}
- * const camera_config_t camera_config = BSP_CAMERA_DEFAULT_CONFIG;
- * esp_err_t err = esp_camera_init(&camera_config);
- * \endcode
- **************************************************************************************************/
-/**
- * @brief Camera default configuration
- *
- * In this configuration we select RGB565 color format and 320x240 image size - matching the display.
- * We use double-buffering for the best performance.
- * Since we don't want to waste internal SRAM, we allocate the framebuffers in external PSRAM.
- * By setting XCLK to 16MHz, we configure the esp32-camera driver to use EDMA when accessing the PSRAM.
- *
- * @attention I2C must be enabled by bsp_i2c_init(), before camera is initialized
- */
-#define BSP_CAMERA_DEFAULT_CONFIG         \
-    {                                     \
-        .pin_pwdn = GPIO_NUM_NC,          \
-        .pin_reset = GPIO_NUM_NC,         \
-        .pin_xclk = BSP_CAMERA_XCLK,      \
-        .pin_sccb_sda = GPIO_NUM_NC,      \
-        .pin_sccb_scl = GPIO_NUM_NC,      \
-        .pin_d7 = BSP_CAMERA_D7,          \
-        .pin_d6 = BSP_CAMERA_D6,          \
-        .pin_d5 = BSP_CAMERA_D5,          \
-        .pin_d4 = BSP_CAMERA_D4,          \
-        .pin_d3 = BSP_CAMERA_D3,          \
-        .pin_d2 = BSP_CAMERA_D2,          \
-        .pin_d1 = BSP_CAMERA_D1,          \
-        .pin_d0 = BSP_CAMERA_D0,          \
-        .pin_vsync = BSP_CAMERA_VSYNC,    \
-        .pin_href = BSP_CAMERA_HSYNC,     \
-        .pin_pclk = BSP_CAMERA_PCLK,      \
-        .xclk_freq_hz = 10000000,         \
-        .ledc_timer = LEDC_TIMER_0,       \
-        .ledc_channel = LEDC_CHANNEL_0,   \
-        .pixel_format = PIXFORMAT_RGB565, \
-        .frame_size = FRAMESIZE_QVGA,  \
-        .jpeg_quality = 12,               \
-        .fb_count = 2,                    \
-        .fb_location = CAMERA_FB_IN_PSRAM,\
-        .sccb_i2c_port = BSP_I2C_NUM,     \
-    }
-
-#define BSP_CAMERA_VFLIP        0
-#define BSP_CAMERA_HMIRROR      0
 
 /**************************************************************************************************
  *
@@ -389,6 +333,8 @@ bool bsp_display_lock(uint32_t timeout_ms);
  */
 void bsp_display_unlock(void);
 
+uint8_t read8bit(uint8_t sub_addr);
+
 /**
  * @brief Rotate screen
  *
@@ -398,6 +344,8 @@ void bsp_display_unlock(void);
  * @param[in] rotation Angle of the display rotation
  */
 void bsp_display_rotate(lv_display_t *disp, lv_display_rotation_t rotation);
+
+i2s_chan_handle_t bsp_get_i2s_tx_chan(void);
 #endif // BSP_CONFIG_NO_GRAPHIC_LIB == 0
 
 #ifdef __cplusplus

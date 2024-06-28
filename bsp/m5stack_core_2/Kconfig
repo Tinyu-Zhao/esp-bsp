@@ -1,11 +1,20 @@
 menu "Board Support Package"
 
+    menu "PMU"
+        config BSP_PMU_VERSION
+            int "PMU Select"
+                default 1
+                range 0 1
+                help
+                    0 is PMU AXP192, 1 is AXP2101.
+    endmenu
+
     config BSP_ERROR_CHECK
         bool "Enable error check in BSP"
         default y
         help
             Error check assert the application before returning the error code.
-            
+
     menu "I2C"
         config BSP_I2C_NUM
             int "I2C peripheral index"
