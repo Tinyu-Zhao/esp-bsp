@@ -37,7 +37,8 @@ static const audio_codec_data_if_t *i2s_data_if = NULL;  /* Codec data interface
         .gpio_cfg = BSP_I2S_GPIO_CFG,                                                                 \
     }
 
-esp_err_t bsp_audio_init(const i2s_std_config_t *i2s_config) {
+esp_err_t bsp_audio_init(const i2s_std_config_t *i2s_config)
+{
     esp_err_t ret = ESP_FAIL;
     if (i2s_tx_chan && i2s_rx_chan) {
         ESP_LOGE(TAG, "Audio was initialized before");
@@ -78,9 +79,9 @@ esp_err_t bsp_audio_init(const i2s_std_config_t *i2s_config) {
     ESP_LOGI(TAG, "I2S initialized successfully");
 
     ESP_LOGI(TAG, "I2S config: sample_rate=%lu, data_bit_width=%d, slot_mode=%ld",
-         (unsigned long)p_i2s_cfg->clk_cfg.sample_rate_hz,
-         p_i2s_cfg->slot_cfg.data_bit_width,
-         (long)p_i2s_cfg->slot_cfg.slot_mode);
+             (unsigned long)p_i2s_cfg->clk_cfg.sample_rate_hz,
+             p_i2s_cfg->slot_cfg.data_bit_width,
+             (long)p_i2s_cfg->slot_cfg.slot_mode);
 
     return ESP_OK;
 
