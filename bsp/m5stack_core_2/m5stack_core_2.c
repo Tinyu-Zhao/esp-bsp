@@ -74,6 +74,18 @@ esp_err_t bsp_i2c_deinit(void) {
     return ESP_OK;
 }
 
+uint8_t read8bit(uint8_t sub_addr) {
+    // Read register data
+    uint8_t reg_data[1] = {0};
+    esp_err_t err = i2c_master_write_read_device(BSP_I2C_NUM,BSP_AXP192_ADDR,&sub_addr,1,reg_data,sizeof(reg_data),1000 / portTICK_PERIOD_MS);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to write & read register address: %s", esp_err_to_name(err));
+    }
+    ESP_LOGE(TAG, "AXP192 register %x: 0x%x", sub_addr,reg_data[0]);
+
+    return reg_data[0];
+}
+
 static esp_err_t bsp_enable_feature(bsp_feature_t feature) {
     esp_err_t err = ESP_OK;
 
@@ -97,11 +109,10 @@ static esp_err_t bsp_enable_feature(bsp_feature_t feature) {
             break;
         case BSP_FEATURE_SPEAKER:
 #if (CONFIG_BSP_PMU_VERSION == 1)
-            // /* AXP ALDO3 voltage / Codec+Mic / 3V3 */
-            // data[0] = 0x94;
-            // data[1] = 0b00011100;  // 3V3
-            // err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, data, sizeof(data),
-            //                                   1000 / portTICK_PERIOD_MS);
+            /* AXP ALDO3 voltage / Codec+Mic / 3V3 */
+            const uint8_t spk_ctr[] = {0x94, 0b00011100};  // axp: lcd logic and sdcard voltage preset to 3.3v
+            err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, spk_ctr, sizeof(spk_ctr),
+                                              1000 / portTICK_PERIOD_MS);
 #elif (CONFIG_BSP_PMU_VERSION == 0)
             const uint8_t led_gpio_set[] = {0x94, (read8bit(0x94)|0x04)};
             ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP192_ADDR, led_gpio_set, sizeof(led_gpio_set),
@@ -218,42 +229,6 @@ esp_codec_dev_handle_t bsp_audio_codec_speaker_init(void) {
 #define LCD_CMD_BITS   8
 #define LCD_PARAM_BITS 8
 #define LCD_LEDC_CH    CONFIG_BSP_DISPLAY_BRIGHTNESS_LEDC_CH
-
-/* esp_err_t i2c_init() {
-    if (i2c_initialized) {
-        return ESP_OK;
-    }
-    i2c_config_t i2c_conf;
-    i2c_conf.mode = I2C_MODE_MASTER;
-    i2c_conf.sda_io_num = BSP_I2C_SDA;
-    i2c_conf.sda_pullup_en = GPIO_PULLUP_DISABLE;
-    i2c_conf.scl_io_num = BSP_I2C_SCL;
-    i2c_conf.scl_pullup_en = GPIO_PULLUP_DISABLE;
-    i2c_conf.master.clk_speed = CONFIG_BSP_I2C_CLK_SPEED_HZ;
-    BSP_ERROR_CHECK_RETURN_ERR(i2c_param_config(BSP_I2C_NUM, &i2c_conf));
-    BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_install(BSP_I2C_NUM, i2c_conf.mode, 0, 0, 0));
-
-    i2c_initialized = true;
-    return ESP_OK;
-}
-
-static void i2c_write(uint8_t addr, uint8_t reg, uint8_t data) {
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, addr << 1 | I2C_MASTER_WRITE, true);
-    i2c_master_write_byte(cmd, reg, true);
-    i2c_master_write_byte(cmd, data, true);
-    i2c_master_stop(cmd);
-    i2c_master_cmd_begin(BSP_I2C_NUM, cmd, 1000 / portTICK_PERIOD_MS);
-    i2c_cmd_link_delete(cmd);
-}
-
-static void i2c_deinit() {
-    i2c_driver_delete(0);
-}
-
-const uint8_t axp_init_reg[]={0x26, 0x27, 0x28, 0x91, 0x12, 0x10, 0x90, 0x92, 0x93, 0x95, 0x82, 0x33, 0x35, 0x94, 0x94, 0x94, 0x28, 0x12, 0x96, 0x96};
-const uint8_t axp_init_data[] = {0x68, 0x54, 0x00, 0x00, 0x57, 0x05, 0x07, 0x00, 0x00, 0x85, 0xff, 0xd0, 0x00, 0x01, 0x01, 0x01, 0xf0, 0x57, 0x00, 0x02}; */
 
 esp_err_t bsp_display_brightness_init(void) {
     /* Initilize I2C */
@@ -426,7 +401,7 @@ esp_err_t bsp_display_new(const bsp_display_config_t *config, esp_lcd_panel_hand
         .color_space    = BSP_LCD_COLOR_SPACE,
         .bits_per_pixel = BSP_LCD_BITS_PER_PIXEL,
     };
-    
+
     ESP_GOTO_ON_ERROR(esp_lcd_new_panel_ili9341(*ret_io, &panel_config, ret_panel), err, TAG, "New panel failed");
 
     esp_lcd_panel_reset(*ret_panel);
@@ -561,18 +536,6 @@ void bsp_display_rotate(lv_display_t *disp, lv_display_rotation_t rotation) {
 
 bool bsp_display_lock(uint32_t timeout_ms) {
     return lvgl_port_lock(timeout_ms);
-}
-
-uint8_t read8bit(uint8_t sub_addr) {
-    // Read register data
-    uint8_t reg_data[1] = {0};
-    esp_err_t err = i2c_master_write_read_device(BSP_I2C_NUM,BSP_AXP192_ADDR,&sub_addr,1,reg_data,sizeof(reg_data),1000 / portTICK_PERIOD_MS);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to write & read register address: %s", esp_err_to_name(err));
-    }
-    ESP_LOGE(TAG, "AXP192 register %x: 0x%x", sub_addr,reg_data[0]);
-
-    return reg_data[0];
 }
 
 void bsp_display_unlock(void) {

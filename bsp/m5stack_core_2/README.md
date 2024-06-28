@@ -1,33 +1,47 @@
-# BSP: M5Stack CoreS3
+# BSP: M5Stack Core2
 
 > [!WARNING]
 > The SD card is not working simultaneously with the LCD screen. We are working on a fix.
 
-[![Component Registry](https://components.espressif.com/components/espressif/m5stack_core_s3/badge.svg)](https://components.espressif.com/components/espressif/m5stack_core_s3)
+[![Component Registry](https://components.espressif.com/components/espressif/m5stack_core_2/badge.svg)](https://components.espressif.com/components/espressif/m5stack_core_2)
 
-* [Hardware Reference](https://docs.m5stack.com/en/core/CoreS3)
+* [Hardware Reference](https://docs.m5stack.com/en/core/Core2)
 
-![image](pic.webp)
+<img src="https://static-cdn.m5stack.com/resource/docs/products/core/core2/core2_01.webp" alt="basic" width="350" height="350"><img src="https://static-cdn.m5stack.com/resource/docs/products/core/Core2%20v1.1/img-1a949091-da2c-4fbb-bf4f-bce108cb43ec.webp" alt="gray" width="350" height="350">
 
-CoreS3 is the third generation of the M5Stack Core series. Powered by the ESP32-S3 solution, this kit features a dual-core Xtensa LX7 processor running at 240MHz. CoreS3 comes equipped with built-in Wi-Fi functionality, enabling seamless connectivity. It boasts 16MB of onboard flash memory and 8MB of PSRAM, providing ample space for program storage.
+M5Core2 is the second generation core device in the M5Stack development kit series, which further enhances the functions of the original generation of cores. It is a powerful and user-friendly development board with the following features:
 
-CoreS3 offers convenient programming options through its TYPE-C interface, supporting OTG and CDC functions. This allows for easy connection with external USB devices and hassle-free firmware flashing. CoreS3 features a 2.0-inch capacitive touch IPS screen, protected by high-strength glass material. Additionally, a 0.3 megapixel camera GC0308 is integrated at the bottom of the screen, accompanied by a proximity sensor LTR-553ALS-WA for enhanced functionality. Power management is handled by the AXP2101 power management core chip, employing a 4-way power flow control loop for efficient power distribution. The overall design emphasizes low power consumption. CoreS3 also features a 6-axis attitude sensor BMI270 and a magnetometer BMM150 for precise motion detection. With the onboard TF-card (microSD) card slot and BM8563 RTC chip, accurate timing and sleep-timer wake-up functions are readily available.
+- **MCU**: Equipped with an ESP32-D0WDQ6-V3, featuring dual core Xtensa® 32-bit 240Mhz LX6 processors that can be controlled separately.
+- **Memory**: Onboard 16MB Flash and 8MB PSRAM.
+- **Interface**: USB TYPE-C interface for charging, program downloading, and serial communication.
+- **Display**: 2.0-inch integrated capacitive touch screen with three programmable capacitive buttons on the front.
+- **Power Management:** Managed by an AXP192 power management chip (upgraded to AXP2101 in Core2 V1.1), which effectively controls power consumption. It includes a built-in green LED power indicator for battery level notification. The battery capacity is 390mAh, providing longer power duration than the previous model.
+- **Audio**: I2S digital audio interface power amplifier chip to prevent signal distortion, along with a built-in speaker.
+- **Expansion**: Retains a TF-card (microSD) slot, and an expansion board on the back with a 6-axis IMU sensor and a microphone.
+- **RTC Module**: Built-in RTC module for accurate timing, with a dedicated battery for RTC power supply in Core2 V1.1.
+Additional Features: Built-in vibration motor for haptic feedback, independent power, and reset buttons on the left side and bottom of the base.
 
-Sound output on CoreS3 is optimized with the high-fidelity 16-bit I2S power amplifier chip AW88298, accompanied by a built-in 1W speaker for clear audio playback. For sound input, the kit incorporates the ES7210 audio decoding chip and dual-microphone input. The side of the device includes an independent power button and restart (RST) button, complemented by a self-built delay circuit. By long-pressing the reset button, users can easily enter the program download mode. The CoreS3 kit comes with the DinBase Base, providing convenient options for Din rail, wall, and screw fixing. It can be powered by an external DC 12V (supports 9~24V) or an internal 500mAh lithium battery. The DinBase also offers multiple proto locations for users to customize and expand their projects. CoreS3 is an ideal choice for IoT development, various DIY project development, smart home control systems, and industrial automation control systems.
+#### Core2 V1.1 Enhancements
+Core2 V1.1 is an iterative version of Core2 with the following upgrades and additional features:
+
+- **Power Management**: Uses the AXP2101 power management chip for enhanced power control.
+- **Indicators**: Built-in blue power indicator light for specific functions or status indications.
+- RTC Battery: Dedicated battery for RTC power supply for accurate timing.
+- **User Interaction**: Enhanced touch screen experience with programmable virtual buttons for diverse human-machine interaction.
+
 
 
 <!-- Autogenerated start: Dependencies -->
 ### Capabilities and dependencies
-|  Capability |     Available    |                                                  Component                                                 |Version|
-|-------------|------------------|------------------------------------------------------------------------------------------------------------|-------|
-|   DISPLAY   |:heavy_check_mark:|     [espressif/esp_lcd_ili9341](https://components.espressif.com/components/espressif/esp_lcd_ili9341)     |   ^1  |
-|  LVGL_PORT  |:heavy_check_mark:|       [espressif/esp_lvgl_port](https://components.espressif.com/components/espressif/esp_lvgl_port)       |   ^2  |
-|    TOUCH    |:heavy_check_mark:|[espressif/esp_lcd_touch_ft5x06](https://components.espressif.com/components/espressif/esp_lcd_touch_ft5x06)|   ^1  |
-|   BUTTONS   |        :x:       |                                                                                                            |       |
-|    AUDIO    |:heavy_check_mark:|       [espressif/esp_codec_dev](https://components.espressif.com/components/espressif/esp_codec_dev)       |  ^1.1 |
-|AUDIO_SPEAKER|:heavy_check_mark:|                                                                                                            |       |
-|  AUDIO_MIC  |:heavy_check_mark:|                                                                                                            |       |
-|    SDCARD   |:heavy_check_mark:|                                                     idf                                                    | >=5.0 |
-|     IMU     |        :x:       |                                                                                                            |       |
-|    CAMERA   |:heavy_check_mark:|        [espressif/esp32-camera](https://components.espressif.com/components/espressif/esp32-camera)        | ^2.0.2|
+| Capability    | Available          | Component                                                                                                    | Version |
+| ------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ | ------- |
+| DISPLAY       | :heavy_check_mark: | [espressif/esp_lcd_ili9341](https://components.espressif.com/components/espressif/esp_lcd_ili9341)           | ^1      |
+| LVGL_PORT     | :heavy_check_mark: | [espressif/esp_lvgl_port](https://components.espressif.com/components/espressif/esp_lvgl_port)               | ^2      |
+| TOUCH         | :heavy_check_mark: | [espressif/esp_lcd_touch_ft5x06](https://components.espressif.com/components/espressif/esp_lcd_touch_ft5x06) | ^1      |
+| BUTTONS       | :x:                |                                                                                                              |         |
+| AUDIO         | :heavy_check_mark: | [espressif/esp_codec_dev](https://components.espressif.com/components/espressif/esp_codec_dev)               | ^1.1    |
+| AUDIO_SPEAKER | :heavy_check_mark: |                                                                                                              |         |
+| AUDIO_MIC     | :heavy_check_mark: |                                                                                                              |         |
+| SDCARD        | :heavy_check_mark: | idf                                                                                                          | >=5.0   |
+| IMU           | :x:                |                                                                                                              |         |
 <!-- Autogenerated end: Dependencies -->

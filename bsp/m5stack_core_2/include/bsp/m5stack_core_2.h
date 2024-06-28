@@ -15,7 +15,6 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 #include "driver/sdmmc_host.h"
-// #include "soc/usb_pins.h"
 #include "esp_codec_dev.h"
 #include "bsp/config.h"
 #include "bsp/display.h"
@@ -40,7 +39,7 @@
 #define BSP_CAPS_BUTTONS        0
 #define BSP_CAPS_AUDIO          1
 #define BSP_CAPS_AUDIO_SPEAKER  1
-#define BSP_CAPS_AUDIO_MIC      1
+#define BSP_CAPS_AUDIO_MIC      0
 #define BSP_CAPS_SDCARD         1
 #define BSP_CAPS_IMU            0
 
@@ -74,9 +73,6 @@
 #define BSP_SD_SCK            (GPIO_NUM_18)
 #define BSP_SD_CS             (GPIO_NUM_4)
 
-// /* USB */
-// #define BSP_USB_POS           USBPHY_DP_NUM
-// #define BSP_USB_NEG           USBPHY_DM_NUM
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,10 +81,6 @@ extern "C" {
 /**************************************************************************************************
  *
  * I2S audio interface
- *
- * There are two devices connected to the I2S peripheral:
- *  - Codec AW88298 for output (playback) path
- *  - ADC ES7210 for input (recording) path
  *
  * For speaker initialization use bsp_audio_codec_speaker_init() which is inside initialize I2S with bsp_audio_init().
  * After speaker initialization, use functions from esp_codec_dev for play/record audio.
@@ -136,20 +128,12 @@ const audio_codec_data_if_t *bsp_audio_get_codec_itf(void);
  */
 esp_codec_dev_handle_t bsp_audio_codec_speaker_init(void);
 
-/**
- * @brief Initialize microphone codec device
- *
- * @return Pointer to codec device handle or NULL when error occured
- */
-esp_codec_dev_handle_t bsp_audio_codec_microphone_init(void);
-
 /**************************************************************************************************
  *
  * I2C interface
  *
  * There are multiple devices connected to I2C peripheral:
- *  - Codec AW88298 (configuration only)
- *  - ADC ES7210 (configuration only)
+ *  - AXP192 / AXP2101 PMU
  *  - LCD Touch controller
  **************************************************************************************************/
 #define BSP_I2C_NUM     CONFIG_BSP_I2C_NUM
@@ -258,7 +242,7 @@ esp_err_t bsp_sdcard_unmount(void);
  *
  * LCD interface
  *
- * M5Stack-Core-S3 is shipped with 2.0inch ILI9341C display controller.
+ * M5Stack-Core-2 is shipped with 2.0inch ILI9341C display controller.
  * It features 16-bit colors, 320x240 resolution and capacitive touch controller.
  *
  * LVGL is used as graphics library. LVGL is NOT thread safe, therefore the user must take LVGL mutex
@@ -332,8 +316,6 @@ bool bsp_display_lock(uint32_t timeout_ms);
  *
  */
 void bsp_display_unlock(void);
-
-uint8_t read8bit(uint8_t sub_addr);
 
 /**
  * @brief Rotate screen

@@ -50,7 +50,9 @@ esp_err_t bsp_audio_init(const i2s_std_config_t *i2s_config) {
     BSP_ERROR_CHECK_RETURN_ERR(i2s_new_channel(&chan_cfg, &i2s_tx_chan, &i2s_rx_chan));
 
     /* Setup I2S channels */
-    const i2s_std_config_t std_cfg_default = BSP_I2S_DUPLEX_MONO_CFG(44100);
+    i2s_std_config_t std_cfg_default = BSP_I2S_DUPLEX_MONO_CFG(44100);
+    std_cfg_default.slot_cfg.slot_mask = I2S_STD_SLOT_RIGHT;
+
     const i2s_std_config_t *p_i2s_cfg = &std_cfg_default;
     if (i2s_config != NULL) {
         p_i2s_cfg = i2s_config;
