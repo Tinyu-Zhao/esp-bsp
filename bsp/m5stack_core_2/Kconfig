@@ -1,19 +1,26 @@
 menu "Board Support Package"
 
-    menu "PMU"
-        config BSP_PMU_VERSION
-            int "PMU Select"
-                default 1
-                range 0 1
-                help
-                    0 is PMU AXP192, 1 is AXP2101.
-    endmenu
-
     config BSP_ERROR_CHECK
         bool "Enable error check in BSP"
         default y
         help
             Error check assert the application before returning the error code.
+
+    menu "PMU"
+        choice PMU_VERSION
+            prompt "PMU Version"
+            default BSP_PMU_AXP192
+            help
+                Core2 v1.0 PMU version is AXP192, Core2 v1.1 PMU version is AXP2101, you can determine the version of Core2 by the backplane sticker or PCB.
+
+        config BSP_PMU_AXP192
+            bool "AXP192"
+
+        config BSP_PMU_AXP2101
+            bool "AXP2101"
+
+        endchoice
+    endmenu
 
     menu "I2C"
         config BSP_I2C_NUM

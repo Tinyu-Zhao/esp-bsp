@@ -101,24 +101,25 @@ static esp_err_t bsp_enable_feature(bsp_feature_t feature)
     case BSP_FEATURE_LCD://ldo2
     case BSP_FEATURE_TOUCH:
     case BSP_FEATURE_SD:
-#if (CONFIG_BSP_PMU_VERSION == 1)
+#if defined ( CONFIG_BSP_PMU_AXP2101 )
         /* AXP ALDO4 voltage / SD Card / Touch Pad / 3V3 */
         const uint8_t feature_ctr[] = {0x95, 0b00011100};  // axp: lcd logic and sdcard voltage preset to 3.3v
         err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, feature_ctr, sizeof(feature_ctr),
                                           1000 / portTICK_PERIOD_MS);
-#elif (CONFIG_BSP_PMU_VERSION == 0)
+
+#elif defined (CONFIG_BSP_PMU_AXP192)
         const uint8_t pmu_ldo2[] = {0x28, (read8bit(0x28) & 0x0f) | 0xf0}; // axp: lcd logic and sdcard voltage preset to 3.3v
         err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP192_ADDR, pmu_ldo2, sizeof(pmu_ldo2),
                                           1000 / portTICK_PERIOD_MS);
 #endif
         break;
     case BSP_FEATURE_SPEAKER:
-#if (CONFIG_BSP_PMU_VERSION == 1)
+#if defined ( CONFIG_BSP_PMU_AXP2101 )
         /* AXP ALDO3 voltage / Codec+Mic / 3V3 */
         const uint8_t spk_ctr[] = {0x94, 0b00011100};  // axp: lcd logic and sdcard voltage preset to 3.3v
         err |= i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, spk_ctr, sizeof(spk_ctr),
                                           1000 / portTICK_PERIOD_MS);
-#elif (CONFIG_BSP_PMU_VERSION == 0)
+#elif defined (CONFIG_BSP_PMU_AXP192)
         const uint8_t led_gpio_set[] = {0x94, (read8bit(0x94) | 0x04)};
         ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP192_ADDR, led_gpio_set, sizeof(led_gpio_set),
                             1000 / portTICK_PERIOD_MS), TAG, "I2C write failed");
@@ -247,7 +248,7 @@ esp_err_t bsp_display_brightness_init(void)
     /* Initilize I2C */
     BSP_ERROR_CHECK_RETURN_ERR(bsp_i2c_init());
 
-#if (CONFIG_BSP_PMU_VERSION == 1)
+#if defined ( CONFIG_BSP_PMU_AXP2101 )
     ESP_LOGE("example", "AXP2101");
     const uint8_t lcd_bl_en[] = {0x90, 0x3F};  // AXP ALDO1~4 BLDO1~2 Enable
     ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, lcd_bl_en, sizeof(lcd_bl_en),
@@ -290,7 +291,7 @@ esp_err_t bsp_display_brightness_init(void)
     ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, axp_vib_val, sizeof(axp_vib_val),
                         1000 / portTICK_PERIOD_MS),
                         TAG, "I2C write failed");
-#elif (CONFIG_BSP_PMU_VERSION==0)
+#elif defined (CONFIG_BSP_PMU_AXP192)
     ESP_LOGE("example", "AXP192");
     read8bit(0x12);
 
@@ -361,13 +362,13 @@ esp_err_t bsp_display_brightness_set(int brightness_percent)
     }
 
     ESP_LOGI(TAG, "Setting LCD backlight: %d%%", brightness_percent);
-#if (CONFIG_BSP_PMU_VERSION == 1)
+#if defined ( CONFIG_BSP_PMU_AXP2101 )
     const uint8_t reg_val      = 20 + ((8 * brightness_percent) / 100);  // 0b00000 ~ 0b11100; under 20, it is too dark
     const uint8_t lcd_bl_val[] = {0x96, reg_val};                        // AXP DLDO1 voltage
     ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP2101_ADDR, lcd_bl_val, sizeof(lcd_bl_val),
                         1000 / portTICK_PERIOD_MS),
                         TAG, "I2C write failed");
-#elif (CONFIG_BSP_PMU_VERSION == 0)
+#elif defined (CONFIG_BSP_PMU_AXP192)
     const uint8_t reg_val      = 90 + ((8 * brightness_percent) / 100);  // 0b00000 ~ 0b11100; under 20, it is too dark
     const uint8_t lcd_bl_val[] = {0x27, reg_val};                        // AXP DCDC3 voltage
     ESP_RETURN_ON_ERROR(i2c_master_write_to_device(BSP_I2C_NUM, BSP_AXP192_ADDR, lcd_bl_val, sizeof(lcd_bl_val),
